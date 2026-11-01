@@ -72,9 +72,9 @@ def test_unrelated_words_do_not_trigger_substring_intents():
     session = create_session()
     response = client.post(
         f"/sessions/{session['id']}/messages",
-        json={"text": "Please send the invoice agentic documentation"},
+        json={"text": "Please review the humanitarian documentation"},
     )
-    assert response.json()["intent"] == "billing"
+    assert response.json()["intent"] == "unknown"
 
 
 def test_invalid_calendar_date_does_not_complete_appointment():
