@@ -1,6 +1,6 @@
 import re
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from threading import RLock
 from typing import ClassVar
 from uuid import uuid4
@@ -30,7 +30,7 @@ class IntentRouter:
     def classify(self, text: str) -> Intent:
         normalized = text.lower()
         for intent, keywords in self.KEYWORDS.items():
-            if any(keyword in normalized for keyword in keywords):
+            if any(re.search(r"\b" + re.escape(keyword) + r"\b", normalized) for keyword in keywords):
                 return intent
         return Intent.unknown
 
@@ -148,7 +148,12 @@ class VoiceOrchestrator:
     @staticmethod
     def _collect_slots(session: VoiceSession, text: str) -> None:
         if date_match := APPOINTMENT_DATE.search(text):
-            session.slots["appointment_date"] = date_match.group(1)
+            try:
+                date.fromisoformat(date_match.group(1))
+            except ValueError:
+                session.slots.pop("appointment_date", None)
+            else:
+                session.slots["appointment_date"] = date_match.group(1)
         if account_match := ACCOUNT_REFERENCE.search(text):
             session.slots["account_reference"] = account_match.group(1).upper()
 
