@@ -76,3 +76,7 @@ python -m pytest -q
 - replace keyword routing with structured LLM classification
 - add authentication, rate limits, and tenant isolation
 - export call metrics and traces to an observability platform
+
+## Demo deployment boundary
+
+This service is a local reference implementation, not a public voice or medical service. The endpoints currently have no authentication and store sessions only in process memory. Do not expose them publicly without authentication, authorization, tenant isolation, retention policies, and persistent storage. LiveKit and Twilio are extension points, not live integrations in this repository.
