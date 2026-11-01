@@ -67,3 +67,21 @@ def test_human_request_escalates_with_audit_event():
 def test_unknown_session_returns_404():
     response = client.get("/sessions/not-found")
     assert response.status_code == 404
+
+def test_unrelated_words_do_not_trigger_substring_intents():
+    session = create_session()
+    response = client.post(
+        f"/sessions/{session['id']}/messages",
+        json={"text": "Please send the invoice agentic documentation"},
+    )
+    assert response.json()["intent"] == "billing"
+
+
+def test_invalid_calendar_date_does_not_complete_appointment():
+    session = create_session()
+    response = client.post(
+        f"/sessions/{session['id']}/messages",
+        json={"text": "Schedule an appointment for 2026-02-30"},
+    )
+    assert response.json()["state"] == "collecting_details"
+    assert "appointment_date" not in response.json()["slots"]
